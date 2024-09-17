@@ -20,7 +20,7 @@ var myGameArea = {
         this.frameNo = 0;
         this.interval = setInterval(updateGameArea, 20);
         window.addEventListener('keydown', function (e) {
-            myGameArea.key = e.keyCode;
+            myGameArea.key = e.code;
           })
           window.addEventListener('keyup', function (e) {
             myGameArea.key = false;
@@ -37,7 +37,7 @@ var myGameArea = {
             clearInterval(this.interval);
             this.isPaused = true;
         } else {
-            this.interval = setInterval
+            this.interval = setInterval();
         }
     }
 }
@@ -110,10 +110,11 @@ function updateGameArea() {
     }
     myScore.text="SCORE: " + myGameArea.frameNo;
     myScore.update();
-    if (myGameArea.key && myGameArea.key == 37) {myGamePiece.speedX = -1; }
-    if (myGameArea.key && myGameArea.key == 39) {myGamePiece.speedX = 1; }
-    if (myGameArea.key && myGameArea.key == 38) {myGamePiece.speedY = -1; }
-    if (myGameArea.key && myGameArea.key == 40) {myGamePiece.speedY = 1; }
+    // if (myGameArea.key && myGameArea.key == 37) {myGamePiece.speedX = -1; myGamePiece.speedY = -1}
+    // if (myGameArea.key && myGameArea.key == 39) {myGamePiece.speedX = 1; myGamePiece.speedY = -1}
+    // if (myGameArea.key && myGameArea.key == 38) {myGamePiece.speedY = -1; myGamePiece.speedX = -1}
+    // if (myGameArea.key && myGameArea.key == 40) {myGamePiece.speedY = 1; myGamePiece.speedX = -1}
+    key(myGameArea.key)
     myGamePiece.newPos();    
     myGamePiece.update();
 }
@@ -121,6 +122,25 @@ function updateGameArea() {
 function everyinterval(n) {
     if ((myGameArea.frameNo / n) % 1 == 0) {return true;}
     return false;
+}
+
+function key(e) {
+    if ((e == "ArrowUp")) {
+        myGamePiece.speedY = -1;
+        myGamePiece.speedX = 0; 
+    }
+    else if ((e == "ArrowDown" )) {
+        myGamePiece.speedY = 1;
+        myGamePiece.speedX = 0; 
+    }
+    else if ((e == "ArrowLeft" )) {
+        myGamePiece.speedY = 0;
+        myGamePiece.speedX = -1;
+    }
+    else if ((e == "ArrowRight")) {
+        myGamePiece.speedY = 0;
+        myGamePiece.speedX = 1; 
+    }
 }
 
 function moveup() {
