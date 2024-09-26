@@ -1,7 +1,9 @@
 var myGamePiece;
 var myObstacles = [];
 var myScore;
-var myBackgroud;
+
+var myBackground;
+var backgroundX = 0;
 
 var passSound = new Audio("pass-pipe.wav");
 var collisionSound = new Audio("collision.wav");
@@ -9,13 +11,14 @@ var collisionSound = new Audio("collision.wav");
 function startGame() {
   myGamePiece = new component(30, 30, "bird.png", 10, 120, "image");
   myScore = new component("30px", "Consolas", "black", 280, 40, "text");
-  myBackground = new component(656, 270, "background.png", 0, 0, "image");
+  myBackground = new component(656, 270, "background.png", 0, 0, "background");
   myGameArea.start();
 }
 
 var myGameArea = {
   canvas: document.createElement("canvas"),
   isPaused: false,
+
   start: function () {
     this.canvas.width = 480;
     this.canvas.height = 270;
@@ -41,24 +44,27 @@ var myGameArea = {
       myGameArea.restartGame();
     });
   },
+
   clear: function () {
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
   },
+
   stop: function () {
     clearInterval(this.interval);
   },
+
   pauseGame: function () {
     if (this.isPaused) {
       this.interval = setInterval(updateGameArea, 20); // Resume the game
       document.getElementById("pause").innerText = "Pause"; // Update button text
       this.isPaused = false;
-    } 
-    else {
+    } else {
       clearInterval(this.interval); // Pause the game
       document.getElementById("pause").innerText = "Resume"; // Update button text
       this.isPaused = true;
     }
   },
+
   restartGame: function () {
     this.stop(); // Stop the current game loop
 
@@ -88,13 +94,23 @@ function component(width, height, color, x, y, type) {
 
   this.update = function () {
     ctx = myGameArea.context;
+
     if (this.type == "text") {
       ctx.font = this.width + " " + this.height;
       ctx.fillStyle = color;
       ctx.fillText(this.text, this.x, this.y);
-    } else if (this.type == "image" || this.type == "background") {
-      ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
-    } else {
+    } 
+    else if (this.type == "image" || this.type == "background") {
+      // If this is the background, draw it twice to achieve the seamless effect
+      if (this.type == "background") {
+        ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+        ctx.drawImage(this.image, this.x + this.width, this.y, this.width, this.height);
+      }
+      else {
+        ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+      }
+    } 
+    else {
       ctx.fillStyle = color;
       ctx.fillRect(this.x, this.y, this.width, this.height);
     }
@@ -104,8 +120,8 @@ function component(width, height, color, x, y, type) {
     this.x += this.speedX;
     this.y += this.speedY;
 
-    // Reset x position when the image has completely scrolled out of view
-    if (this.type == "background" && this.x <= -this.width) {
+    // If the background is completely off the screen, reset its x position to 0
+    if (this.type === "background" && this.x <= -this.width) {
       this.x = 0;
     }
   };
@@ -143,10 +159,14 @@ function updateGameArea() {
       return;
     }
   }
+
   myGameArea.clear();
+
+  // Update and display background
   myBackground.speedX = -1;
-  myBackground.newPos();
-  myBackground.update();
+  myBackground.newPos(); // Move the background left
+  myBackground.update(); // Draw the background
+
   myGameArea.frameNo += 1;
 
   if (myGameArea.frameNo == 1 || everyinterval(150)) {
@@ -179,7 +199,9 @@ function updateGameArea() {
 
   myScore.text = "SCORE: " + myGameArea.frameNo;
   myScore.update();
+
   key(myGameArea.key);
+
   myGamePiece.newPos();
   myGamePiece.update();
 }
